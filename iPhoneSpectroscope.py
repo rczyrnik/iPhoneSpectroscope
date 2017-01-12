@@ -14,6 +14,12 @@ In the folder: txt is a sub-folder with text files for each element.
 The first column is wavelength in Angstroms (10 times wavelength in nm).
 The second column is intesity.
 
+TO DO:
+get rid of nubers
+add red and blue light files
+fix smoothings
+make element id function
+
 """
 
 

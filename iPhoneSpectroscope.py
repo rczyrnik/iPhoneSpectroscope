@@ -27,11 +27,11 @@ make element id function
 import sys
 sys.path.append('/System/Library/Frameworks/Python.framework/Versions/2.7/Extras/lib/python')
 
-import scipy as sp
-import numpy as np
-import matplotlib.pyplot as plt
+#import scipy as sp
+#import numpy as np
+#import matplotlib.pyplot as plt
 from PIL import Image
-from scipy import signal
+#from scipy import signal
 from ReadElementFile import ReadElementFile   
 
 
@@ -93,43 +93,54 @@ def findPeaks(data):
     return (peakLambda, peakIntensity)
 
 
+# ----- Reformat as a program ---- #
+def iPhoneSpectroscope(tiff, times):
+    elements = ReadElementFile()    # makeDictionary() creates a dictionary of elements
+                                    # key = element name
+                                    # value = wavelenghts of peaks
 
-# ------------------------ #
-if __name__ == '__main__':
+    tiff = "tif/Element" + str(tiff)  + ".tif"    
+                                    # what file are we looking at?
+    img = Image.open(tiff)          # open the file
 
-    elements = ReadElementFile()       # makeDictionary() creates a dictionary of elements
-                                        # key = element name
-                                        # value = wavelenghts of peaks
+    width, height = img.size
 
-    tiff = "tif/" + (sys.argv[1])     # what file are we looking at?
-    times = int(sys.argv[2])          # how much should it be smoothed?
-    img = Image.open(tiff)            # open the file
+    box = (0, height/2-25, width, height/2+25)
+                                    # dimensions of the cropped box
+    img = img.crop(box).convert('L')# crop and convert to grayscale
 
-    box = (0, 1200, 3264, 1250)       # dimensions of the cropped box
-    img = img.crop(box).convert('L')      # crop and convert to grayscale
-
-    data = flatten(img)               # turn into a histogram
+    data = flatten(img)             # turn into a histogram
     
-    zero = findPeak(data, 0, "all")       # find the center
+    zero = findPeak(data, 0, "all") # find the center
 
-    data = data[zero+500:zero+1250]   # crop the data to visible light 
-    
-    for x in range(0, times):         #  smooth the data
+    data = data[zero+500:zero+1250] # crop the data to visible light 
+                                    # based on the equiptment
+    for x in range(0, times):          # smooth the data
         data = smooth(data)
 
     x = [n for n in range(0, len(data))]
-                                      # for the raw data
+                                    # for the raw data
     x = [(100*n+67140)/197 for n in range(len(data))]    
-                                      # for wavelength on the x axis
+                                    # for wavelength on the x axis
     
     peakLambda, peakIntensity = findPeaks(data)
-    print(peakLambda, peakIntensity)
+    return(peakLambda, peakIntensity)
+    
     index = peakIntensity.index(max(peakIntensity))
     maxIntensity = peakIntensity[index]
     maxLambda = peakLambda[index]
 
-#    plt.plot(x,data)                  # make the plot
-#    plt.show()                        # show the plot
+#    plt.plot(x,data)               # make the plot
+#    plt.show()                     # show the plot
 
 #    img.show()
+
+
+# ------------------------ #
+if __name__ == '__main__':
+
+    Element = sys.argv[1]
+    Times = str(sys.argv[2])
+
+    iPhoneSpectroscope(Element, Times)
 
